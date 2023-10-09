@@ -1,15 +1,15 @@
 # httpcall
  
-使用 Coroutine + Retrofit 打造的最简单HTTP请求库 
+使用 Coroutine + Retrofit 打造的最简单HTTP请求库，支持 `kotlin.Result`
 
 ## Gradle
 
 ``` groovy
-repositories { 
+repositories {
     maven { url "https://gitee.com/ezy/repo/raw/cosmo/"}
-} 
+}
 dependencies {
-    implementation "me.reezy.cosmo:httpcall:0.7.0" 
+    implementation "me.reezy.cosmo:httpapi:0.8.0"
 }
 ```
 
@@ -23,7 +23,7 @@ data class HttpBin(
 
 interface TestService {
     @GET("https://httpbin.org/get")
-    suspend fun suspendHttpResult(): HttpResult<HttpBin>
+    suspend fun suspendHttpResult(): Result<HttpBin>
 
     @GET("https://httpbin.org/get")
     fun call(): Call<HttpBin>
@@ -41,24 +41,24 @@ private val moshi by lazy {
     Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
 }
 
-private val retrofit by lazy {
+private val retrofit by lazy { 
     Retrofit.Builder().client(okhttp)
         .baseUrl("http://httpbin.org")
-        // 支持 HttpResult
-        .addConverterFactory(HttpResultConverterFactory.create(moshi).asLenient())
-        // 支持 HttpResult
-        .addCallAdapterFactory(HttpResultAdapterFactory())
-        .build()
+        .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
+        .addCallAdapterFactory(ResultCallAdapterFactory {
+            it.printStackTrace()
+        })
+        .build() 
 }
 
 
 // 提供 Retrofit 实例
-HttpService.setRetrofitProvider {
+Api.setRetrofitProvider {
     retrofit
 }
 
 // 设置全局错误处理
-HttpService.setErrorHandler {
+Api.setErrorHandler {
     it.printStackTrace()
 }
 ```
@@ -84,14 +84,14 @@ http<TestService>().call().onSuccess(this) {
 lifecycleScope.launch {
 
     // 通过回调处理结果
-    http<TestService>().suspendHttpResult().onSuccess {
-        Log.e("OoO", "suspendHttpResult => $it")
+    http<TestService>().suspendKotlinResult().onSuccess {
+        Log.e("OoO", "suspendKotlinResult => $it")
     }.onFailure {
-        Log.e("OoO", "suspendHttpResult onFailure => $it")
+        Log.e("OoO", "suspendKotlinResult onFailure => $it")
     }
 
     // 直接返回结果
-    val result = http<TestService>().suspendHttpResult().getOrNull() ?: return@launch
+    val result = http<TestService>().suspendKotlinResult().getOrNull() ?: return@launch
 }
 ```
 

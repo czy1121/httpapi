@@ -1,17 +1,23 @@
 package com.demo.app
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.squareup.moshi.*
+import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.launch
-import me.reezy.cosmo.httpcall.*
+import me.reezy.cosmo.httpapi.Api
+import me.reezy.cosmo.httpapi.ApiCall
+import me.reezy.cosmo.httpapi.ApiRetrofit
+import me.reezy.cosmo.httpapi.ResultCallAdapterFactory
+import me.reezy.cosmo.httpapi.api
+import me.reezy.cosmo.httpapi.onSuccess
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -27,8 +33,10 @@ class MainActivity : AppCompatActivity() {
     private val retrofit by lazy {
         Retrofit.Builder().client(okhttp)
             .baseUrl("http://httpbin.org")
-            .addConverterFactory(HttpResultConverterFactory.create(moshi).asLenient())
-            .addCallAdapterFactory(HttpResultAdapterFactory())
+            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
+            .addCallAdapterFactory(ResultCallAdapterFactory {
+                it.printStackTrace()
+            })
             .build()
     }
 
@@ -38,22 +46,18 @@ class MainActivity : AppCompatActivity() {
 
 
         // 提供 Retrofit 实例
-        HttpService.setRetrofitProvider {
+        Api.setRetrofitProvider {
             retrofit
         }
 
         // 设置全局错误处理
-        HttpService.setErrorHandler {
+        Api.setErrorHandler {
             it.printStackTrace()
         }
 
-        var text1 = ""
-        var text2 = ""
-
         // 普通请求
-        http<TestService>().call().onSuccess(this) {
-            text1 = it.toString()
-            findViewById<TextView>(R.id.hello).text = "call() \n==> $text1\n\nsuspendHttpResult() \n==> $text2"
+        api<TestService>().call().onSuccess(this) {
+            findViewById<TextView>(R.id.text1).text = "普通请求:\n$it"
             Log.e("OoO", "call => $it")
         }.onFailure {
             Log.e("OoO", "call onFailure  => $it")
@@ -65,16 +69,15 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
 
             // 通过回调处理结果
-            http<TestService>().suspendHttpResult().onSuccess {
-                text2 = it.toString()
-                findViewById<TextView>(R.id.hello).text = "call() \n==> $text1\n\nsuspendHttpResult() \n==> $text2"
-                Log.e("OoO", "suspendHttpResult => $it")
+            api<TestService>().suspendKotlinResult().onSuccess {
+                findViewById<TextView>(R.id.text2).text = "在协程上下文中发起请求:\n$it"
+                Log.e("OoO", "suspendKotlinResult => $it")
             }.onFailure {
-                Log.e("OoO", "suspendHttpResult onFailure => $it")
+                Log.e("OoO", "suspendKotlinResult onFailure => $it")
             }
 
             // 直接返回结果
-            val result = http<TestService>().suspendHttpResult().getOrNull() ?: return@launch
+            val result = api<TestService>().suspendKotlinResult().getOrNull() ?: return@launch
 
         }
     }

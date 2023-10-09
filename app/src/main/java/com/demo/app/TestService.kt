@@ -1,13 +1,13 @@
 package com.demo.app
 
-import me.reezy.cosmo.httpcall.HttpResult
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
 
 interface TestService {
+
     @GET("https://httpbin.org/get")
-    suspend fun suspendHttpResult(): HttpResult<HttpBin>
+    suspend fun suspendKotlinResult(): Result<HttpBin>
 
     @GET("https://httpbin.org/get")
     fun call(): Call<HttpBin>

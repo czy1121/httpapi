@@ -1,9 +1,9 @@
 
-apply from: "$buildGradlePath/build-library-demo.gradle"
+apply from: "$buildGradlePath/build-demo.gradle"
 
 
 dependencies {
-    implementation project(":httpcall")
+    implementation project(':httpapi')
 
     // 网络请求
     implementation "com.squareup.okhttp3:okhttp:4.10.0"
@@ -11,6 +11,6 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:4.10.0"
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
-    implementation "com.squareup.moshi:moshi-kotlin:1.13.0"
-    implementation "com.squareup.moshi:moshi-adapters:1.13.0"
+    implementation "com.squareup.moshi:moshi-kotlin:1.14.0"
+    implementation "com.squareup.moshi:moshi-adapters:1.14.0"
 }

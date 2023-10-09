@@ -5,6 +5,8 @@ pluginManagement {
         mavenCentral()
     }
 }
+
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -12,8 +14,15 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
     }
+    versionCatalogs {
+        libs {
+            from files("$buildGradlePath/versions-basic.toml")
+        }
+    }
 }
+
 rootProject.name = "http"
 include ':app'
 
-include ':httpcall'
+include ':httpapi'
+//include ':httpapi-result'
