@@ -2,10 +2,9 @@
 apply from: "$buildGradlePath/build-library-android.gradle"
 
 dependencies {
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
-    api 'androidx.fragment:fragment-ktx:1.5.2'
+    api libs.kotlinx.coroutines.android
+    api libs.androidx.fragment
 
-
-    compileOnly "com.squareup.retrofit2:retrofit:2.9.0"
-    compileOnly "com.squareup.retrofit2:converter-moshi:2.9.0"
+    compileOnly libs.squareup.retrofit2.retrofit
+    compileOnly libs.squareup.retrofit2.converter.moshi
 }
