@@ -9,14 +9,13 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.launch
 import me.reezy.cosmo.httpapi.Api
-import me.reezy.cosmo.httpapi.ApiCall
-import me.reezy.cosmo.httpapi.ApiRetrofit
-import me.reezy.cosmo.httpapi.ResultCallAdapterFactory
 import me.reezy.cosmo.httpapi.api
+import me.reezy.cosmo.httpapi.getOrNull
 import me.reezy.cosmo.httpapi.onSuccess
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.await
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 
@@ -34,9 +33,6 @@ class MainActivity : AppCompatActivity() {
         Retrofit.Builder().client(okhttp)
             .baseUrl("http://httpbin.org")
             .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
-            .addCallAdapterFactory(ResultCallAdapterFactory {
-                it.printStackTrace()
-            })
             .build()
     }
 
@@ -68,16 +64,19 @@ class MainActivity : AppCompatActivity() {
         // 在协程上下文中发起请求
         lifecycleScope.launch {
 
-            // 通过回调处理结果
-            api<TestService>().suspendKotlinResult().onSuccess {
-                findViewById<TextView>(R.id.text2).text = "在协程上下文中发起请求:\n$it"
-                Log.e("OoO", "suspendKotlinResult => $it")
-            }.onFailure {
-                Log.e("OoO", "suspendKotlinResult onFailure => $it")
+            // 自己处理异常
+            try {
+                val data = api<TestService>().call().await()
+                Log.e("OoO", "call() => $data")
+            } catch (ex: Throwable) {
+                Log.e("OoO", "call() catch => $ex")
             }
 
-            // 直接返回结果
-            val result = api<TestService>().suspendKotlinResult().getOrNull() ?: return@launch
+            // 使用全局异常处理
+            val result = api<TestService>().call().getOrNull()
+            findViewById<TextView>(R.id.text2).text = "call() => \n$result"
+            Log.e("OoO", "call() => $result")
+
 
         }
     }
