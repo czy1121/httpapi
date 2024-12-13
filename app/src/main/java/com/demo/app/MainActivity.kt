@@ -10,7 +10,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.launch
 import me.reezy.cosmo.httpapi.Api
 import me.reezy.cosmo.httpapi.api
-import me.reezy.cosmo.httpapi.getOrNull
+import me.reezy.cosmo.httpapi.catch
 import me.reezy.cosmo.httpapi.onSuccess
 import okhttp3.Cache
 import okhttp3.OkHttpClient
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 普通请求
-        api<TestService>().call().onSuccess(this) {
+        api<TestApi>().call().onSuccess(this) {
             findViewById<TextView>(R.id.text1).text = "普通请求:\n$it"
             Log.e("OoO", "call => $it")
         }.onFailure {
@@ -66,14 +66,14 @@ class MainActivity : AppCompatActivity() {
 
             // 自己处理异常
             try {
-                val data = api<TestService>().call().await()
+                val data = api<TestApi>().call().await()
                 Log.e("OoO", "call() => $data")
             } catch (ex: Throwable) {
                 Log.e("OoO", "call() catch => $ex")
             }
 
             // 使用全局异常处理
-            val result = api<TestService>().call().getOrNull()
+            val result = api<TestApi>().call().catch()
             findViewById<TextView>(R.id.text2).text = "call() => \n$result"
             Log.e("OoO", "call() => $result")
 

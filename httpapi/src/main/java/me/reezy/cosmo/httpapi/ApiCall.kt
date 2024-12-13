@@ -17,19 +17,19 @@ class ApiCall<T>(call: Call<T>, scope: CoroutineScope, errorHandler: ((Throwable
 
     init {
 
-        job = scope.launch {
+        job = scope.launch(Dispatchers.Main) {
             try {
                 val response = call.awaitResponse()
                 callback?.invoke(response)
             } catch (throwable: Throwable) {
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main.immediate) {
                     failure?.invoke(throwable)
                     if (!intercept) {
                         errorHandler?.invoke(throwable)
                     }
                 }
             } finally {
-                withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main.immediate) {
                     finally.forEach {
                         try {
                             it.invoke()

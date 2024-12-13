@@ -67,10 +67,10 @@ Api.setErrorHandler {
 
 ```kotlin
 // 普通请求
-http<TestService>().call().onSuccess(this) {
+api<TestApi>().call().onSuccess(this) {
     Log.e("OoO", "call => $it")
 }.onFailure {
-    Log.e("OoO", "call onFailure => $it")
+    Log.e("OoO", "call onFailure  => $it")
 }.onFinally {
     Log.e("OoO", "call onFinally")
 }
@@ -83,15 +83,18 @@ http<TestService>().call().onSuccess(this) {
 // 在协程上下文中发起请求
 lifecycleScope.launch {
 
-    // 通过回调处理结果
-    http<TestService>().suspendKotlinResult().onSuccess {
-        Log.e("OoO", "suspendKotlinResult => $it")
-    }.onFailure {
-        Log.e("OoO", "suspendKotlinResult onFailure => $it")
+    // 自己处理异常
+    try {
+        val data = api<TestApi>().call().await()
+        Log.e("OoO", "call => $data")
+    } catch (ex: Throwable) {
+        Log.e("OoO", "call catch => $ex")
     }
 
-    // 直接返回结果
-    val result = http<TestService>().suspendKotlinResult().getOrNull() ?: return@launch
+    // 使用全局异常处理，可能返回 null
+    val result = api<TestApi>().call().catch() 
+    Log.e("OoO", "call => $result")
+
 }
 ```
 

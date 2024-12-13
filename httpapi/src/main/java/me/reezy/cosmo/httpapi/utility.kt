@@ -10,7 +10,6 @@ import retrofit2.Call
 import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.await
-import retrofit2.awaitResponse
 
 inline fun <reified T : Any> api(): T = Api.getService(T::class.java)
 
@@ -34,7 +33,7 @@ inline fun <T> Call<T>.onResponse(scope: CoroutineScope, noinline callback: ((Re
 
 
 
-suspend fun <T: Any> Call<T>.getOrNull(): T? {
+suspend fun <T: Any> Call<T>.catch(): T? {
     return try {
         await()
     } catch (throwable: Throwable) {
