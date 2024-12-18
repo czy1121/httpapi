@@ -1,6 +1,6 @@
 # httpapi
  
-使用 Coroutine + Retrofit 打造的最简单HTTP请求库，支持 `kotlin.Result`
+使用 Coroutine + Retrofit 打造的最简单HTTP请求库
 
 ## Gradle
 
@@ -9,7 +9,7 @@ repositories {
     maven { url "https://gitee.com/ezy/repo/raw/cosmo/"}
 }
 dependencies {
-    implementation "me.reezy.cosmo:httpapi:0.8.0"
+    implementation "me.reezy.cosmo:httpapi:0.10.0"
 }
 ```
 
@@ -21,10 +21,7 @@ data class HttpBin(
     val url: String,
 )
 
-interface TestService {
-    @GET("https://httpbin.org/get")
-    suspend fun suspendHttpResult(): Result<HttpBin>
-
+interface TestService {  
     @GET("https://httpbin.org/get")
     fun call(): Call<HttpBin>
 }
