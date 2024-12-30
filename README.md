@@ -9,7 +9,7 @@ repositories {
     maven { url "https://gitee.com/ezy/repo/raw/cosmo/"}
 }
 dependencies {
-    implementation "me.reezy.cosmo:httpapi:0.10.0"
+    implementation "me.reezy.cosmo:httpapi:0.10.1"
 }
 ```
 
