@@ -17,10 +17,12 @@ class ApiCall<T>(call: Call<T>, scope: CoroutineScope, errorHandler: ((Throwable
 
     init {
 
-        job = scope.launch(Dispatchers.Main) {
+        job = scope.launch(Dispatchers.IO) {
             try {
                 val response = call.awaitResponse()
-                callback?.invoke(response)
+                withContext(Dispatchers.Main.immediate) {
+                    callback?.invoke(response)
+                }
             } catch (throwable: Throwable) {
                 withContext(Dispatchers.Main.immediate) {
                     failure?.invoke(throwable)

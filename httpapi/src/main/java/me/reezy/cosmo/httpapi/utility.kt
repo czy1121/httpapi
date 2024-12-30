@@ -6,10 +6,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import retrofit2.Call
 import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.await
+
+
+val apiScope = CoroutineScope(SupervisorJob())
 
 inline fun <reified T : Any> api(): T = Api.getService(T::class.java)
 
@@ -18,7 +23,7 @@ inline fun <T> Call<T>.onSuccess(fragment: Fragment, noinline callback: (T) -> U
 
 inline fun <T> Call<T>.onSuccess(activity: FragmentActivity, noinline callback: (T) -> Unit = {}) = onSuccess(activity.lifecycleScope, callback)
 
-fun <T> Call<T>.onSuccess(scope: CoroutineScope, callback: (T) -> Unit = {}) = ApiCall(this, scope, Api.errorHandler) {
+fun <T> Call<T>.onSuccess(scope: CoroutineScope = apiScope, callback: (T) -> Unit = {}) = ApiCall(this, scope, Api.errorHandler) {
     if (!it.isSuccessful) {
         throw HttpException(it)
     }
@@ -29,7 +34,7 @@ inline fun <T> Call<T>.onResponse(fragment: Fragment, noinline callback: ((Respo
 
 inline fun <T> Call<T>.onResponse(activity: FragmentActivity, noinline callback: ((Response<T>) -> Unit)? = null) = ApiCall(this, activity.lifecycleScope, Api.errorHandler, callback)
 
-inline fun <T> Call<T>.onResponse(scope: CoroutineScope, noinline callback: ((Response<T>) -> Unit)? = null) = ApiCall(this, scope, Api.errorHandler, callback)
+inline fun <T> Call<T>.onResponse(scope: CoroutineScope = apiScope, noinline callback: ((Response<T>) -> Unit)? = null) = ApiCall(this, scope, Api.errorHandler, callback)
 
 
 
